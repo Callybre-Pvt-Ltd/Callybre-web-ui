@@ -1,0 +1,230 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────── */
+:root {
+  --bg:       #0a0a0a;
+  --surface:  #111111;
+  --border:   rgba(255,255,255,0.08);
+  --text-muted: #71717a;
+  --accent:   #ffffff;
+}
+
+/* ─────────────────────────────────────────────
+   SCROLLBAR — hidden globally, no layout shift
+───────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  /* Hide scrollbar but keep scrolling — prevents layout shift on overflow toggle */
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE / Edge legacy */
+}
+html::-webkit-scrollbar { display: none; }  /* Chrome / Safari / Opera */
+
+/* Utility class kept for inner scroll containers */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+body {
+  background: var(--bg);
+  color: #fafafa;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─────────────────────────────────────────────
+   PRELOADER
+───────────────────────────────────────────── */
+.loader-strip {
+  transform: translateY(0);
+  transition: transform 0.9s cubic-bezier(0.85, 0, 0.15, 1);
+  will-change: transform;
+}
+.loaded .loader-strip { transform: translateY(-100%); }
+
+/* ─────────────────────────────────────────────
+   MODAL
+───────────────────────────────────────────── */
+.modal-overlay {
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+.modal-content {
+  transform: scale(0.95) translateY(20px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.modal-overlay.active .modal-content { transform: scale(1) translateY(0); opacity: 1; }
+
+/* ─────────────────────────────────────────────
+   SCROLL REVEAL
+───────────────────────────────────────────── */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
+
+/* ─────────────────────────────────────────────
+   MARQUEE — pause-on-hover helper
+   (keyframes are scoped inside TechMarquee.jsx)
+───────────────────────────────────────────── */
+.marquee-pause-hover:hover > div {
+  animation-play-state: paused;
+}
+
+/* ─────────────────────────────────────────────
+   HERO
+───────────────────────────────────────────── */
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Grid lines — invisible until hero-ready is set */
+.hero-grid-lines {
+  opacity: 0;
+  transition: opacity 0.5s ease 0.1s;
+}
+.hero-ready .hero-grid-lines {
+  opacity: 1;
+}
+
+/* Fade-in elements — paused until hero-ready fires */
+.hero-fade-in {
+  animation: heroFadeUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--delay, 0s);
+  animation-play-state: paused;
+}
+.hero-ready .hero-fade-in {
+  animation-play-state: running;
+}
+
+@keyframes scrollBreath {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50%       { transform: scale(1.6); opacity: 1; }
+}
+.hero-scroll-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #3f3f46;
+  animation: scrollBreath 2.2s ease-in-out infinite;
+}
+
+.hero-arrow-icon { display: inline-block; transition: transform 0.2s ease; }
+.hero-btn-primary:hover .hero-arrow-icon { transform: translateX(5px); }
+
+/* ─────────────────────────────────────────────
+   CARD — base token card (replaces cyber-card)
+───────────────────────────────────────────── */
+.cal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+.cal-card:hover {
+  border-color: rgba(255,255,255,0.16);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  transform: translateY(-2px);
+}
+
+/* ─────────────────────────────────────────────
+   SECTION LABEL
+───────────────────────────────────────────── */
+.sec-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.sec-label::before {
+  content: '';
+  display: inline-block;
+  width: 16px; height: 1px;
+  background: var(--text-muted);
+}
+
+/* ─────────────────────────────────────────────
+   DIVIDER LINE
+───────────────────────────────────────────── */
+.sec-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────
+   FORM INPUTS
+───────────────────────────────────────────── */
+.cal-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #fafafa;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.cal-input::placeholder { color: #52525b; }
+.cal-input:focus { border-color: rgba(255,255,255,0.3); }
+.cal-input.error { border-color: #f43f5e; }
+
+/* ─────────────────────────────────────────────
+   CTA BUTTON VARIANTS
+───────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  background: #ffffff; color: #0a0a0a;
+  padding: 0.875rem 1.75rem;
+  font-size: 0.8125rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  transition: background 0.2s, transform 0.15s;
+}
+.btn-primary:hover { background: #e4e4e7; }
+.btn-primary:active { transform: scale(0.97); }
+
+/* Navbar CTA - compact on mobile */
+.nav-cta-mobile {
+  padding: 0.45rem 0.875rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+@media (min-width: 768px) {
+  .nav-cta-mobile {
+    padding: 0.875rem 1.75rem;
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+  }
+}
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--border);
+  padding: 0.875rem 1.75rem;
+  font-size: 0.8125rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: #a1a1aa;
+  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+}
+.btn-ghost:hover { border-color: rgba(255,255,255,0.3); color: #fafafa; }
+.btn-ghost:active { transform: scale(0.97); }
+
+/* ─────────────────────────────────────────────
+   SERVICE CARD ICON ACCENT COLOURS (static)
+───────────────────────────────────────────── */
+.icon-accent-purple { color: #a78bfa; }
+.icon-accent-blue   { color: #60a5fa; }
+.icon-accent-indigo { color: #818cf8; }
+.icon-accent-emerald{ color: #34d399; }
+.icon-accent-rose   { color: #fb7185; }
+.icon-accent-amber  { color: #fbbf24; }
