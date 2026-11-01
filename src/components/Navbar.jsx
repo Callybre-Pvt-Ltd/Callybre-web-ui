@@ -12,18 +12,31 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [open])
+
   const close = () => setOpen(false)
 
   return (
-    <nav
-      style={{
-        position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 50,
-        backdropFilter: 'blur(12px)',
-        background: scrolled || open ? 'rgba(10,10,10,0.92)' : 'rgba(10,10,10,0.5)',
-        borderBottom: `1px solid ${scrolled || open ? 'rgba(255,255,255,0.08)' : 'transparent'}`,
-        transition: 'background 0.3s, border-color 0.3s',
-      }}
-    >
+    <>
+      <nav
+        style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 50,
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          background: scrolled || open ? 'rgba(10,10,10,0.96)' : 'rgba(10,10,10,0.5)',
+          borderBottom: `1px solid ${scrolled || open ? 'rgba(255,255,255,0.08)' : 'transparent'}`,
+          transition: 'background 0.3s, border-color 0.3s',
+        }}
+      >
       <div className="max-w-7xl mx-auto px-6 h-[72px] flex items-center justify-between">
         {/* Logo */}
         <a href="#home" className="text-[13px] md:text-[15px] font-black tracking-[0.25em] text-white uppercase shrink-0">
@@ -103,5 +116,20 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
+
+    {/* Backdrop blur overlay for area underneath toggle nav */}
+    <div
+      onClick={close}
+      className={`lg:hidden fixed inset-0 z-40 transition-all duration-300 ${
+        open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      }`}
+      style={{
+        background: 'rgba(0, 0, 0, 0.65)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+      }}
+      aria-hidden="true"
+    />
+  </>
   )
 }

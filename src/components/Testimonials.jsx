@@ -60,12 +60,12 @@ const STYLES = `
   }
 
   /* ── cards-wrapper ──
-     Spec: anchored at top:20%, left:50%.
+     Spec: anchored at top:24%, left:50%.
      Cards stack absolutely inside it, all at top:0 left:0.
      transform-origin on each card does the Ferris-wheel magic. */
   .tw-cards-wrapper {
     position: absolute;
-    top: 20%;
+    top: 24%;
     left: 50%;
     width: 0;
     height: 0;
@@ -107,11 +107,19 @@ const STYLES = `
     transition: opacity 0.3s;
   }
   /* Centre slot (slot 5 = 0 degrees) gets the spotlight */
-  .tw-card.tw-active .tw-card-face {
-    border-color: rgba(255,255,255,0.18);
-    box-shadow: 0 0 48px rgba(167,139,250,0.12);
+  .tw-card.tw-active {
+    z-index: 30 !important;
   }
-  .tw-card.tw-active .tw-card-face::before { opacity: 1; }
+  .tw-card.tw-active .tw-card-face {
+    background: #151518;
+    border-color: rgba(167, 139, 250, 0.45);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.85), 0 0 36px rgba(167,139,250,0.2);
+  }
+  .tw-card.tw-active .tw-card-face::before {
+    opacity: 1;
+    height: 2.5px;
+    background: linear-gradient(90deg, #a78bfa, #60a5fa);
+  }
 
   /* Quote mark */
   .tw-qm {
@@ -129,27 +137,9 @@ const STYLES = `
     justify-content: space-between;
     margin-bottom: 6px;
   }
-  .tw-card-expand {
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #71717a;
-    transition: all 0.2s ease;
-  }
   .tw-card:hover .tw-card-face {
     border-color: rgba(167,139,250,0.4);
     box-shadow: 0 8px 30px rgba(0,0,0,0.5), 0 0 24px rgba(167,139,250,0.12);
-  }
-  .tw-card:hover .tw-card-expand {
-    background: rgba(167,139,250,0.18);
-    border-color: rgba(167,139,250,0.45);
-    color: #a78bfa;
-    transform: scale(1.08);
   }
   /* Stars row */
   .tw-stars { display: flex; gap: 3px; margin-bottom: 10px; }
@@ -212,57 +202,41 @@ const STYLES = `
     transform: scale(0.8);
     background: rgba(167,139,250,0.25);
   }
-  .tw-cursor.on-card {
-    border-color: rgba(167,139,250,0.9);
-    background: rgba(167,139,250,0.25);
-    color: #fff;
-    transform: scale(1.1);
+
+  /* Completely hide custom cursor on touch/mobile devices so it never gets stuck */
+  @media (pointer: coarse), (hover: none) {
+    .tw-cursor {
+      display: none !important;
+    }
   }
 
-  /* ── ELEVATED CARD ON CLICK (Comes completely on top so it's not hidden by other cards!) ── */
-  .tw-card.tw-elevated {
-    z-index: 9999 !important;
-  }
-  .tw-card.tw-elevated .tw-card-face {
-    background: #171717 !important;
-    border-color: rgba(167, 139, 250, 0.95) !important;
-    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.95), 0 0 50px rgba(167, 139, 250, 0.35) !important;
-  }
-  .tw-card.tw-elevated .tw-card-face::before {
-    opacity: 1 !important;
-    height: 3px !important;
-  }
-  .tw-card.tw-elevated .tw-card-expand {
-    background: rgba(167, 139, 250, 0.3) !important;
-    border-color: rgba(167, 139, 250, 0.8) !important;
-    color: #fff !important;
-    transform: rotate(180deg);
-  }
-
-  /* ── Header nav controls ── */
+  /* ── Bottom nav controls ── */
   .tw-nav-controls {
     display: flex;
-    gap: 10px;
+    gap: 16px;
     align-items: center;
+    justify-content: center;
   }
   .tw-nav-btn {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    background: #121212;
-    color: #a1a1aa;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: #111111;
+    color: #e4e4e7;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   }
   .tw-nav-btn:hover {
-    border-color: rgba(255, 255, 255, 0.35);
-    background: #1c1c1c;
+    border-color: rgba(167, 139, 250, 0.6);
+    background: #1a1a1a;
     color: #fff;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(167, 139, 250, 0.25);
   }
   .tw-nav-btn:active {
     transform: translateY(0) scale(0.92);
@@ -270,30 +244,19 @@ const STYLES = `
 
   /* ── Bottom bar ── */
   .tw-bar {
-    padding: 28px 48px 48px;
+    padding: 24px 24px 56px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 28px;
+    width: 100%;
   }
-  .tw-hint {
-    font-size: 10px; font-weight: 700;
-    letter-spacing: 0.2em; text-transform: uppercase;
-    color: #3f3f46;
-  }
-  .tw-dots { display: flex; gap: 8px; }
-  .tw-dot {
-    width: 5px; height: 5px; border-radius: 50%;
-    background: #3f3f46;
-    border: none; padding: 0; cursor: pointer;
-    transition: background 0.3s, transform 0.3s;
-  }
-  .tw-dot.active { background: #a78bfa; transform: scale(1.5); }
 
   @media (max-width: 640px) {
-    .tw-stage  { height: 480px; }
+    .tw-stage  { height: 500px; }
+    .tw-cards-wrapper { top: 28%; }
     .tw-card   { width: 230px; left: -115px; }
-    .tw-head   { padding: 0 24px 40px; }
+    .tw-head   { padding: 0 24px 32px; }
+    .tw-bar    { padding: 16px 24px 44px; }
   }
 `
 
@@ -307,7 +270,6 @@ export default function Testimonials() {
   const dirRef          = useRef(1)
   const moveRef         = useRef(null)
   const lastClickRef    = useRef(0)
-  const elevatedCardRef = useRef(null)
 
   // ── Build card DOM nodes ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -324,16 +286,11 @@ export default function Testimonials() {
       card.dataset.quote = t.quote
       card.dataset.name  = t.name
       card.dataset.role  = t.role
-      card.setAttribute("title", "Click to bring to front")
+      card.setAttribute("title", "Click to view testimonial")
       card.innerHTML   = `
         <div class="tw-card-face">
           <div class="tw-card-top">
             <div class="tw-qm">\u201c</div>
-            <div class="tw-card-expand" title="Click to bring to front">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="18 15 12 9 6 15"></polyline>
-              </svg>
-            </div>
           </div>
           <div class="tw-stars">${starsHTML(5)}</div>
           <p class="tw-qt">${t.quote}</p>
@@ -353,7 +310,6 @@ export default function Testimonials() {
 
     // ── One move step ──────────────────────────────────────────────────────────
     function move(explicitDir) {
-      elevatedCardRef.current = null
       const dir = explicitDir !== undefined ? explicitDir : dirRef.current
       if (dir > 0) {
         // Forward: recycle first card to end
@@ -366,7 +322,28 @@ export default function Testimonials() {
     }
     moveRef.current = move
 
-    // ── Apply rotations per spec with natural & elevated stacking ──────────────
+    // ── Rotate directly to clicked card slot into center (slot 5 = 0°) ────────
+    function rotateToIndex(targetIndex) {
+      const now = Date.now()
+      if (now - lastClickRef.current < 220) return
+      lastClickRef.current = now
+
+      const steps = targetIndex - 5
+      if (steps === 0) return
+
+      if (steps > 0) {
+        for (let s = 0; s < steps; s++) {
+          wrapper.appendChild(wrapper.firstElementChild)
+        }
+      } else {
+        for (let s = 0; s < Math.abs(steps); s++) {
+          wrapper.insertBefore(wrapper.lastElementChild, wrapper.firstElementChild)
+        }
+      }
+      applyRots(false)
+    }
+
+    // ── Apply rotations per spec with natural center spotlight ────────────────
     function applyRots(instant) {
       const cards = Array.from(wrapper.children)
 
@@ -374,44 +351,37 @@ export default function Testimonials() {
         const angle      = ROTS[i]
         const visible    = i >= 1 && i <= 10
         const isCentre   = i === 5          // slot 5 = 0°
-        const isElevated = card === elevatedCardRef.current
 
         card.classList.toggle("tw-active", isCentre)
-        card.classList.toggle("tw-elevated", isElevated)
 
-        // Stacking order:
-        // Elevated card gets 9999 so it is NEVER hidden behind any other card!
-        // Default: center card (slot 5) has highest (20), decreasing outward so center is in front.
+        // Center card (slot 5) has highest z-index, decreasing outward so center is in front.
         const baseZ = visible ? Math.max(1, 20 - Math.abs(i - 5)) : 0
-        const z = isElevated ? 9999 : baseZ
-        gsap.set(card, { zIndex: z })
+        gsap.set(card, { zIndex: isCentre ? 30 : baseZ })
 
         if (!visible || instant) {
           gsap.set(card, {
             rotation: angle,
             opacity:  visible ? 1 : 0,
-            scale:    isElevated ? 1.14 : (isCentre ? 1.02 : 1),
-            y:        isElevated ? -25 : 0,
+            scale:    isCentre ? 1.05 : 1,
+            y:        0,
           })
         } else {
           const t       = (i - 1) / 9          // 0 at slot 1, 1 at slot 10
           const delay   = gsap.utils.interpolate(0, 0.22, t)
           const isEdge  = i === 1 || i === 10
           const ease    = isEdge ? "power3.out" : "elastic.out(0.5, 0.4)"
-          const dur     = isEdge ? 0.9 : 1.35
+          const dur     = isEdge ? 0.9 : 1.25
           const opDelay = i === 1 ? delay + 0.18 : delay
 
-          const baseScale   = isCentre ? 1.02 : Math.max(0.82, 1 - Math.abs(angle) / 350)
-          const targetScale = isElevated ? 1.14 : baseScale
-          const targetY     = isElevated ? -25 : 0
+          const baseScale = isCentre ? 1.05 : Math.max(0.82, 1 - Math.abs(angle) / 350)
 
           gsap.to(card, {
             rotation:  angle,
-            scale:     targetScale,
-            y:         targetY,
-            duration:  isElevated ? 0.35 : dur,
-            delay:     isElevated ? 0 : delay,
-            ease:      isElevated ? "power2.out" : ease,
+            scale:     baseScale,
+            y:         0,
+            duration:  dur,
+            delay:     delay,
+            ease:      ease,
             overwrite: "auto",
           })
           gsap.to(card, {
@@ -450,16 +420,6 @@ export default function Testimonials() {
       qx(e.clientX)
       qy(e.clientY)
 
-      const cardTarget = e.target.closest(".tw-card")
-      if (cardTarget && stage.contains(cardTarget)) {
-        const isCurrentElevated = cardTarget === elevatedCardRef.current
-        cursor.textContent = isCurrentElevated ? "↓" : "↑"
-        cursor.classList.add("on-card")
-        cursor.classList.remove("dir-left", "dir-right")
-        return
-      }
-
-      cursor.classList.remove("on-card")
       const rect = stage.getBoundingClientRect()
       const isLeft = e.clientX < rect.left + rect.width / 2
       dirRef.current = isLeft ? -1 : 1
@@ -468,31 +428,21 @@ export default function Testimonials() {
       cursor.classList.toggle("dir-right", !isLeft)
     }
 
-    // Single click handler:
-    // 1. If clicked on a card: elevate it on top of all cards ("usi same place pe upar aa jaye")
-    // 2. If clicked on stage background: rotate wheel!
+    // Click handler:
+    // 1. If clicked on ANY card: smoothly auto-swipe that card into center (slot 5)!
+    // 2. If clicked on stage background: rotate 1 step in cursor direction!
     function onStageClick(e) {
       const cardTarget = e.target.closest(".tw-card")
       if (cardTarget && stage.contains(cardTarget)) {
-        if (elevatedCardRef.current === cardTarget) {
-          // If clicked the already elevated card, drop it back down
-          elevatedCardRef.current = null
-        } else {
-          // Elevate this card to the absolute top!
-          elevatedCardRef.current = cardTarget
+        const cards = Array.from(wrapper.children)
+        const clickedIndex = cards.indexOf(cardTarget)
+        if (clickedIndex !== -1 && clickedIndex !== 5) {
+          rotateToIndex(clickedIndex)
         }
-        applyRots(false)
         return
       }
 
-      // If a card was elevated and user clicked stage background, lower it
-      if (elevatedCardRef.current) {
-        elevatedCardRef.current = null
-        applyRots(false)
-        return
-      }
-
-      // Rotate wheel
+      // Rotate wheel when clicking stage background
       const now = Date.now()
       if (now - lastClickRef.current < 200) return
       lastClickRef.current = now
@@ -550,12 +500,16 @@ export default function Testimonials() {
             <h2 style={{ fontSize: "clamp(2rem,5vw,3.5rem)", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1.1, margin: 0 }}>
               What clients say
             </h2>
-            <p style={{ marginTop: 12, color: "#52525b", fontSize: 13, margin: "12px 0 0" }}>
-              Click any card to bring it to the front &nbsp;·&nbsp; Click left or right to rotate
-            </p>
           </div>
+        </div>
 
-          {/* Navigation Controls */}
+        {/* ── Ferris wheel stage ── */}
+        <div ref={stageRef} className="tw-stage">
+          <div ref={wrapperRef} className="tw-cards-wrapper" />
+        </div>
+
+        {/* Bottom controls */}
+        <div className="tw-bar">
           <div className="tw-nav-controls">
             <button
               type="button"
@@ -582,16 +536,6 @@ export default function Testimonials() {
               </svg>
             </button>
           </div>
-        </div>
-
-        {/* ── Ferris wheel stage ── */}
-        <div ref={stageRef} className="tw-stage">
-          <div ref={wrapperRef} className="tw-cards-wrapper" />
-        </div>
-
-        {/* Bottom hint */}
-        <div className="tw-bar">
-          <p className="tw-hint">Click card to pop in front &nbsp;·&nbsp; Click left or right to rotate</p>
         </div>
 
       </section>
