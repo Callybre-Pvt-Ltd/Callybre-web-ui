@@ -1,4 +1,5 @@
-import { CONTACT, NAV_LINKS } from '../data/site.js'
+import { NAV_LINKS } from '../data/site.js'
+import { CONTACT } from '../data/contact.js'
 
 export default function Footer() {
   const scrollToTop = () => {
@@ -87,7 +88,7 @@ export default function Footer() {
           <div className="flex gap-6">
             <span>{CONTACT.location}</span>
             <span className="text-zinc-800">·</span>
-            <span>{CONTACT.hours}</span>
+            <a href={CONTACT.phoneHref} className="hover:text-zinc-400 transition-colors">{CONTACT.phone}</a>
           </div>
         </div>
       </div>

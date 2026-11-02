@@ -228,3 +228,60 @@ body {
 .icon-accent-emerald{ color: #34d399; }
 .icon-accent-rose   { color: #fb7185; }
 .icon-accent-amber  { color: #fbbf24; }
+
+/* ── Contact section: chromatic title + glitch button ── */
+.contact-chroma {
+  text-shadow: -2px 0 rgba(255, 45, 85, 0.55), 2px 0 rgba(45, 156, 255, 0.55);
+}
+.contact-chroma-line {
+  box-shadow: -2px 0 rgba(255, 45, 85, 0.55), 2px 0 rgba(45, 156, 255, 0.55);
+}
+.contact-glitch-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1.05rem 1.75rem;
+  background: #ffffff;
+  color: #0a0a0a;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: -3px -2px 0 rgba(255, 45, 85, 0.75), 3px 2px 0 rgba(45, 156, 255, 0.75);
+  transition: box-shadow 0.25s ease, transform 0.15s ease;
+}
+.contact-glitch-btn:hover {
+  box-shadow: -5px -3px 0 #ff2d55, 5px 3px 0 #2d9cff;
+}
+.contact-glitch-btn:focus-visible {
+  outline: 2px solid #a78bfa;
+  outline-offset: 6px;
+}
+.contact-glitch-btn:active { transform: scale(0.98); }
+@media (min-width: 640px) {
+  .contact-glitch-btn { width: auto; min-width: 260px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-glitch-btn { transition: none; }
+}
+
+/* ── Contact: custom service dropdown panel ── */
+.service-select-panel {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.98);
+  transform-origin: top center;
+  transition: opacity 0.12s ease-in, transform 0.12s ease-in, visibility 0s linear 0.12s;
+}
+.service-select-panel.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .service-select-panel, .service-select-panel.is-open { transform: none; transition: opacity 0.1s linear, visibility 0s; }
+}

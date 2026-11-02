@@ -26,6 +26,49 @@ export default function FAQ() {
   const [hoverIndex, setHoverIndex] = useState(null)
   const headRef = useScrollReveal()
 
+  const renderDesktopItem = (item, i, isLastInCol) => {
+    const open = openIndex === i
+    const hovered = hoverIndex === i
+    const c = ACCENTS[i % ACCENTS.length]
+    return (
+      <Reveal key={item.q} delay={i * 0.06}>
+        <div
+          style={{ background: open ? c.bg : hovered ? 'rgba(255,255,255,0.02)' : '#0d0d0d', transition: 'background 0.3s', position: 'relative', overflow: 'hidden', borderBottom: isLastInCol ? 'none' : '1px solid rgba(255,255,255,0.05)' }}
+          onMouseEnter={() => setHoverIndex(i)}
+          onMouseLeave={() => setHoverIndex(null)}
+        >
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: `linear-gradient(90deg, ${c.text}, transparent)`, opacity: open ? 1 : 0, transition: 'opacity 0.3s' }} />
+          <button
+            onClick={() => setOpenIndex(open ? null : i)}
+            aria-expanded={open}
+            style={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: '1rem', textAlign: 'left', padding: '1.5rem', cursor: 'pointer', background: 'none', border: 'none', outline: 'none' }}
+          >
+            <span style={{ flexShrink: 0, width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: open ? c.bg : 'rgba(255,255,255,0.04)', border: `1px solid ${open ? c.border : 'rgba(255,255,255,0.08)'}`, color: open ? c.text : '#52525b', transition: 'all 0.3s', marginTop: '1px' }}>
+              {categoryIcons[i]}
+            </span>
+            <span style={{ flex: 1, fontSize: '0.9375rem', fontWeight: 700, color: open ? '#fff' : '#d4d4d8', lineHeight: 1.4, transition: 'color 0.2s', letterSpacing: '-0.01em' }}>
+              {item.q}
+            </span>
+            <span style={{ flexShrink: 0, width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: open ? c.bg : 'rgba(255,255,255,0.04)', border: `1px solid ${open ? c.border : 'rgba(255,255,255,0.07)'}`, color: open ? c.text : '#52525b', transition: 'all 0.35s cubic-bezier(0.16,1,0.3,1)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', marginTop: '4px' }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            </span>
+          </button>
+          <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows 0.35s cubic-bezier(0.16,1,0.3,1)' }}>
+            <div style={{ overflow: 'hidden' }}>
+              <div style={{ padding: '0 1.5rem 1.5rem 4.25rem', borderTop: `1px solid ${c.border}` }}>
+                <p style={{ paddingTop: '1rem', fontSize: '0.875rem', color: '#a1a1aa', lineHeight: 1.75 }}>{item.a}</p>
+                <span style={{ marginTop: '1rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: c.text, padding: '0.3rem 0.65rem', background: c.bg, border: `1px solid ${c.border}` }}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Answered
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Reveal>
+    )
+  }
+
   return (
     <section
       id="faq"
@@ -59,47 +102,13 @@ export default function FAQ() {
 
         {/* ══════════ DESKTOP — original 2-col grid ══════════ */}
         <div className="hidden md:block">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 540px), 1fr))', gap: '1px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
-            {FAQS.map((item, i) => {
-              const open = openIndex === i
-              const hovered = hoverIndex === i
-              const c = ACCENTS[i % ACCENTS.length]
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', alignItems: 'stretch', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
+            {[0, 1].map((col) => {
+              const items = FAQS.map((item, i) => ({ item, i })).filter(({ i }) => i % 2 === col)
               return (
-                <Reveal key={item.q} delay={i * 0.06}>
-                  <div
-                    style={{ background: open ? c.bg : hovered ? 'rgba(255,255,255,0.02)' : '#0d0d0d', transition: 'background 0.3s', position: 'relative', overflow: 'hidden' }}
-                    onMouseEnter={() => setHoverIndex(i)}
-                    onMouseLeave={() => setHoverIndex(null)}
-                  >
-                    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: `linear-gradient(90deg, ${c.text}, transparent)`, opacity: open ? 1 : 0, transition: 'opacity 0.3s' }} />
-                    <button
-                      onClick={() => setOpenIndex(open ? null : i)}
-                      aria-expanded={open}
-                      style={{ width: '100%', display: 'flex', alignItems: 'flex-start', gap: '1rem', textAlign: 'left', padding: '1.5rem', cursor: 'pointer', background: 'none', border: 'none', outline: 'none' }}
-                    >
-                      <span style={{ flexShrink: 0, width: '36px', height: '36px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: open ? c.bg : 'rgba(255,255,255,0.04)', border: `1px solid ${open ? c.border : 'rgba(255,255,255,0.08)'}`, color: open ? c.text : '#52525b', transition: 'all 0.3s', marginTop: '1px' }}>
-                        {categoryIcons[i]}
-                      </span>
-                      <span style={{ flex: 1, fontSize: '0.9375rem', fontWeight: 700, color: open ? '#fff' : '#d4d4d8', lineHeight: 1.4, transition: 'color 0.2s', letterSpacing: '-0.01em' }}>
-                        {item.q}
-                      </span>
-                      <span style={{ flexShrink: 0, width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: open ? c.bg : 'rgba(255,255,255,0.04)', border: `1px solid ${open ? c.border : 'rgba(255,255,255,0.07)'}`, color: open ? c.text : '#52525b', transition: 'all 0.35s cubic-bezier(0.16,1,0.3,1)', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', marginTop: '4px' }}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-                      </span>
-                    </button>
-                    <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows 0.35s cubic-bezier(0.16,1,0.3,1)' }}>
-                      <div style={{ overflow: 'hidden' }}>
-                        <div style={{ padding: '0 1.5rem 1.5rem 4.25rem', borderTop: `1px solid ${c.border}` }}>
-                          <p style={{ paddingTop: '1rem', fontSize: '0.875rem', color: '#a1a1aa', lineHeight: 1.75 }}>{item.a}</p>
-                          <span style={{ marginTop: '1rem', display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.6875rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: c.text, padding: '0.3rem 0.65rem', background: c.bg, border: `1px solid ${c.border}` }}>
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                            Answered
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Reveal>
+                <div key={col} style={{ display: 'flex', flexDirection: 'column', background: '#0d0d0d' }}>
+                  {items.map(({ item, i }, k) => renderDesktopItem(item, i, k === items.length - 1))}
+                </div>
               )
             })}
           </div>

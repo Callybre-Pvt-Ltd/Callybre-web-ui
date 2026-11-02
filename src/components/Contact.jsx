@@ -1,141 +1,222 @@
-import { CONTACT } from '../data/site.js'
+import { useEffect, useState } from 'react'
+import {
+  CONTACT,
+  CONTACT_COPY,
+  CONTACT_STRIP,
+  SERVICE_OPTIONS,
+  SELECT_SERVICE_EVENT,
+} from '../data/contact.js'
 import Reveal from './Reveal.jsx'
+import ServiceSelect from './ServiceSelect.jsx'
 import useScrollReveal from '../hooks/useScrollReveal.js'
 
-const GMAIL_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(CONTACT.email)}&su=${encodeURIComponent('Project Enquiry — Callybre')}`
+const EMPTY_FORM = { name: '', email: '', phone: '', service: '', message: '' }
 
-const GmailIcon = () => (
-  <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0" fill="none">
-    <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 010 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" fill="#EA4335"/>
-  </svg>
-)
+// Floating-label underline field (label sits in the field, lifts on focus / when filled)
+function Field({ id, label, type = 'text', value, onChange, required, textarea, error }) {
+  const shared = {
+    id,
+    name: id,
+    value,
+    onChange,
+    required,
+    placeholder: ' ',
+    'aria-invalid': error ? 'true' : undefined,
+    className:
+      'peer block w-full bg-transparent border-0 border-b border-white/[0.18] px-0 pt-6 pb-2.5 text-[14px] text-white outline-none transition-colors focus:border-white placeholder-transparent resize-none',
+  }
+
+  return (
+    <div className="relative">
+      {textarea ? <textarea rows={3} {...shared} /> : <input type={type} {...shared} />}
+      <label
+        htmlFor={id}
+        className="pointer-events-none absolute left-0 top-1 text-[10px] font-bold tracking-[0.18em] uppercase text-zinc-500 transition-all duration-200
+          peer-placeholder-shown:top-6 peer-placeholder-shown:text-[14px] peer-placeholder-shown:font-normal peer-placeholder-shown:tracking-normal peer-placeholder-shown:normal-case peer-placeholder-shown:text-zinc-400
+          peer-focus:top-1 peer-focus:text-[10px] peer-focus:font-bold peer-focus:tracking-[0.18em] peer-focus:uppercase peer-focus:text-zinc-300"
+      >
+        {label}{required ? '' : ' (optional)'}
+      </label>
+      {error && <p className="mt-1.5 text-[11px] text-rose-400">{error}</p>}
+    </div>
+  )
+}
+
+function ContactForm() {
+  const [form, setForm] = useState(EMPTY_FORM)
+  const [errors, setErrors] = useState({})
+  const [sent, setSent] = useState(false)
+
+  // Service rows elsewhere on the page can pre-select a service here
+  useEffect(() => {
+    const onSelect = (e) => {
+      if (SERVICE_OPTIONS.includes(e.detail)) {
+        setForm((f) => ({ ...f, service: e.detail }))
+        setSent(false)
+      }
+    }
+    window.addEventListener(SELECT_SERVICE_EVENT, onSelect)
+    return () => window.removeEventListener(SELECT_SERVICE_EVENT, onSelect)
+  }, [])
+
+  const update = (key) => (e) => {
+    setForm((f) => ({ ...f, [key]: e.target.value }))
+    if (errors[key]) setErrors((er) => ({ ...er, [key]: undefined }))
+  }
+
+  const validate = () => {
+    const er = {}
+    if (!form.name.trim()) er.name = 'Please enter your name.'
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) er.email = 'Please enter a valid email.'
+    if (!form.message.trim()) er.message = 'Tell us a little about your project.'
+    return er
+  }
+
+  const onSubmit = (e) => {
+    e.preventDefault()
+    const er = validate()
+    setErrors(er)
+    if (Object.keys(er).length) return
+    // Frontend only for now — no backend connected yet.
+    setSent(true)
+    setForm(EMPTY_FORM)
+  }
+
+  if (sent) {
+    return (
+      <div className="flex flex-col items-start justify-center min-h-[360px]">
+        <div className="w-11 h-11 flex items-center justify-center border border-emerald-400/30 bg-emerald-400/10 text-emerald-400 mb-6">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
+        </div>
+        <h3 className="text-2xl font-black tracking-tight text-white">{CONTACT_COPY.successTitle}</h3>
+        <p className="mt-3 text-[14px] text-zinc-400 leading-relaxed max-w-sm">{CONTACT_COPY.successText}</p>
+        <button
+          type="button"
+          onClick={() => setSent(false)}
+          className="mt-8 text-[11px] font-bold tracking-[0.2em] uppercase text-zinc-400 hover:text-white transition-colors"
+        >
+          Send another →
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <form onSubmit={onSubmit} noValidate className="space-y-7">
+      <Field id="name" label="Your Name" value={form.name} onChange={update('name')} required error={errors.name} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
+        <Field id="email" type="email" label="Your Email" value={form.email} onChange={update('email')} required error={errors.email} />
+        <Field id="phone" type="tel" label="Phone" value={form.phone} onChange={update('phone')} />
+      </div>
+
+      <ServiceSelect
+        name="service"
+        label="Service"
+        placeholder="What do you need help with?"
+        options={SERVICE_OPTIONS}
+        value={form.service}
+        onChange={(service) => setForm((f) => ({ ...f, service }))}
+      />
+
+      <Field id="message" label="Share your thoughts" value={form.message} onChange={update('message')} required textarea error={errors.message} />
+
+      <div className="pt-4">
+        <button type="submit" className="contact-glitch-btn">
+          {CONTACT_COPY.submitLabel}
+        </button>
+      </div>
+    </form>
+  )
+}
+
+function ContactTitle() {
+  return (
+    <div className="relative">
+      {/* Organic outline blob behind the title */}
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 400 400"
+        className="pointer-events-none absolute -left-10 -top-16 w-[min(440px,110%)] h-auto text-white/[0.14]"
+        fill="none"
+      >
+        <path
+          d="M118 62c46-34 132-40 186 2 52 41 70 128 52 196-17 66-71 117-136 116-62-1-104-48-140-96C44 230 20 180 34 136c13-40 45-46 84-74z"
+          stroke="currentColor"
+          strokeWidth="1.5"
+        />
+      </svg>
+
+      <h2
+        className="relative font-black tracking-[-0.03em] text-white leading-[0.92] contact-chroma"
+        style={{ fontSize: 'clamp(3.2rem, 7vw, 6rem)' }}
+      >
+        <span className="block">{CONTACT_COPY.titleTop}</span>
+        <span className="flex items-center gap-5">
+          <span aria-hidden="true" className="block h-[3px] w-[clamp(3rem,8vw,7rem)] bg-white contact-chroma-line" />
+          {CONTACT_COPY.titleBottom}
+        </span>
+      </h2>
+
+      <p className="relative mt-10 max-w-[340px] text-[14px] text-zinc-400 leading-relaxed">
+        {CONTACT_COPY.intro}
+      </p>
+    </div>
+  )
+}
 
 export default function Contact() {
   const headRef = useScrollReveal()
 
-  return (
-    <section id="contact" className="scroll-mt-20 bg-[#0a0a0a] border-t border-white/[0.06]">
+  const strip = [
+    { label: CONTACT_STRIP.phoneLabel, value: CONTACT.phone, href: CONTACT.phoneHref },
+    { label: CONTACT_STRIP.locationLabel, value: CONTACT.location },
+    { label: CONTACT_STRIP.emailLabel, value: CONTACT.email, href: `mailto:${CONTACT.email}` },
+  ]
 
-      {/* ══════════ DESKTOP ══════════ */}
-      <div className="hidden md:block">
-        <div ref={headRef} className="reveal-on-scroll max-w-7xl mx-auto px-6 lg:px-12 pt-20 pb-10">
+  return (
+    <section id="contact" className="scroll-mt-20 bg-[#0a0a0a] border-t border-white/[0.06] py-16 md:py-24">
+      <div className="max-w-7xl mx-auto px-5 md:px-6 lg:px-12">
+        <div ref={headRef} className="reveal-on-scroll mb-8 md:mb-10">
           <p className="sec-label">Contact</p>
         </div>
 
-        {/* Giant email as hero CTA */}
         <Reveal>
-          <a
-            href={GMAIL_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group block max-w-7xl mx-auto px-6 lg:px-12 pb-14"
-          >
-            <div className="flex items-end justify-between border-b border-white/[0.08] pb-10 gap-6">
-              <h2
-                className="font-black tracking-tight text-white leading-none transition-colors duration-300 group-hover:text-violet-300"
-                style={{ fontSize: 'clamp(2.4rem, 5.5vw, 4.8rem)' }}
-              >
-                {CONTACT.email}
-              </h2>
-              <span className="shrink-0 flex items-center gap-3 border border-white/[0.12] px-6 py-3 text-[11px] font-black tracking-[0.22em] uppercase text-white group-hover:bg-white group-hover:text-[#0a0a0a] transition-all duration-300 mb-1">
-                <GmailIcon />
-                Open Gmail →
-              </span>
-            </div>
-          </a>
-        </Reveal>
+          <div className="border border-white/[0.08] bg-[#0d0d0d]">
+            {/* Main area: form + title */}
+            <div className="grid grid-cols-1 md:grid-cols-2">
+              {/* Title — first on mobile, right on desktop */}
+              <div className="order-1 md:order-2 px-6 sm:px-10 lg:px-16 pt-14 pb-10 md:py-20 flex items-center md:border-l border-white/[0.08] overflow-hidden">
+                <ContactTitle />
+              </div>
 
-        {/* Info strip */}
-        <Reveal delay={0.1}>
-          <div className="max-w-7xl mx-auto px-6 lg:px-12 pb-20">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-white/[0.06]">
-              {[
-                { label: 'Phone', value: CONTACT.phone, href: `tel:${CONTACT.phone.replace(/\s/g, '')}` },
-                { label: 'Location', value: CONTACT.location },
-                { label: 'Hours', value: CONTACT.hours },
-                { label: 'Default mail app', value: 'Open in system mailer →', href: `mailto:${CONTACT.email}` },
-              ].map((item) => (
-                <div key={item.label} className="bg-[#0a0a0a] px-6 py-5">
-                  <div className="text-[9px] font-bold tracking-[0.22em] uppercase text-zinc-700 mb-2">{item.label}</div>
-                  {item.href
-                    ? <a href={item.href} className="text-[13px] font-semibold text-zinc-400 hover:text-white transition-colors">{item.value}</a>
-                    : <div className="text-[13px] font-semibold text-zinc-400">{item.value}</div>}
+              {/* Form */}
+              <div className="order-2 md:order-1 px-6 sm:px-10 lg:px-16 pb-14 pt-4 md:py-20 border-t md:border-t-0 border-white/[0.08]">
+                <div className="max-w-md">
+                  <ContactForm />
+                </div>
+              </div>
+            </div>
+
+            {/* Info strip */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 border-t border-white/[0.08]">
+              {strip.map((item, i) => (
+                <div
+                  key={item.label}
+                  className={`px-6 py-5 text-center ${i > 0 ? 'border-t sm:border-t-0 sm:border-l border-white/[0.08]' : ''}`}
+                >
+                  <div className="text-[9px] font-bold tracking-[0.22em] uppercase text-zinc-500 mb-1.5">{item.label}</div>
+                  {item.href ? (
+                    <a href={item.href} className="text-[13px] font-semibold text-zinc-200 hover:text-white transition-colors break-all">
+                      {item.value}
+                    </a>
+                  ) : (
+                    <div className="text-[13px] font-semibold text-zinc-200">{item.value}</div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
         </Reveal>
-      </div>
-
-      {/* ══════════ MOBILE — compact, no extra scroll ══════════ */}
-      <div className="md:hidden px-5 py-10">
-
-        {/* Heading */}
-        <div ref={headRef} className="reveal-on-scroll mb-7">
-          <p className="sec-label">Contact</p>
-          <h2 className="text-[1.9rem] font-black tracking-tight text-white leading-tight">
-            Let's build<br />something great.
-          </h2>
-          <p className="mt-2 text-zinc-600 text-[13px]">We reply within one business day.</p>
-        </div>
-
-        {/* Gmail CTA — full width white button */}
-        <Reveal>
-          <a
-            href={GMAIL_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center justify-between w-full bg-white text-[#0a0a0a] px-5 py-4 mb-3 hover:bg-zinc-100 transition-colors"
-          >
-            <div className="flex items-center gap-3">
-              <GmailIcon />
-              <span className="text-[11px] font-black tracking-[0.2em] uppercase">Email via Gmail</span>
-            </div>
-            <span className="text-sm group-hover:translate-x-1 transition-transform">→</span>
-          </a>
-        </Reveal>
-
-        {/* Email address */}
-        <Reveal delay={0.05}>
-          <div className="bg-[#111] border border-white/[0.07] px-5 py-3 mb-4">
-            <div className="text-[9px] font-bold tracking-[0.22em] uppercase text-zinc-700 mb-1">Email</div>
-            <p className="text-[13px] font-semibold text-zinc-300 break-all">{CONTACT.email}</p>
-          </div>
-        </Reveal>
-
-        {/* Phone + Location */}
-        <Reveal delay={0.08}>
-          <div className="grid grid-cols-2 gap-2 mb-2">
-            <div className="bg-[#111] border border-white/[0.07] px-4 py-3">
-              <div className="text-[9px] font-bold tracking-[0.2em] uppercase text-zinc-700 mb-1">Phone</div>
-              <a href={`tel:${CONTACT.phone.replace(/\s/g, '')}`} className="text-[12px] font-semibold text-zinc-300 hover:text-white transition-colors">
-                {CONTACT.phone}
-              </a>
-            </div>
-            <div className="bg-[#111] border border-white/[0.07] px-4 py-3">
-              <div className="text-[9px] font-bold tracking-[0.2em] uppercase text-zinc-700 mb-1">Location</div>
-              <div className="text-[12px] font-semibold text-zinc-300">{CONTACT.location}</div>
-            </div>
-          </div>
-        </Reveal>
-
-        {/* Hours + Mail app fallback */}
-        <Reveal delay={0.11}>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="bg-[#111] border border-white/[0.07] px-4 py-3">
-              <div className="text-[9px] font-bold tracking-[0.2em] uppercase text-zinc-700 mb-1">Hours</div>
-              <div className="text-[11px] font-semibold text-zinc-400 leading-snug">{CONTACT.hours}</div>
-            </div>
-            <a
-              href={`mailto:${CONTACT.email}`}
-              className="bg-[#111] border border-white/[0.07] px-4 py-3 flex flex-col justify-between hover:border-white/[0.15] transition-colors group"
-            >
-              <div className="text-[9px] font-bold tracking-[0.2em] uppercase text-zinc-700 mb-1">Mail App</div>
-              <span className="text-[11px] font-semibold text-zinc-500 group-hover:text-white transition-colors">Open →</span>
-            </a>
-          </div>
-        </Reveal>
-
       </div>
     </section>
   )

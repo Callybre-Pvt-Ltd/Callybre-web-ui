@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { PIN_PRIORITY, refreshPins } from '../lib/scrollOrder.js'
 import { VALUES } from '../data/site.js'
 import Reveal from './Reveal.jsx'
 import useScrollReveal from '../hooks/useScrollReveal.js'
@@ -40,6 +41,7 @@ export default function About() {
           start: 'top top',
           end: () => `+=${Math.abs(getAmt())}`,
           pin: true,
+          refreshPriority: PIN_PRIORITY.about,
           scrub: 1.1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
@@ -50,10 +52,13 @@ export default function About() {
         },
       })
 
-      return () => ScrollTrigger.getAll().forEach(t => t.kill())
     })
 
-    return () => mm.revert()
+    refreshPins()
+    return () => {
+      mm.revert()
+      refreshPins()
+    }
   }, [])
 
   return (

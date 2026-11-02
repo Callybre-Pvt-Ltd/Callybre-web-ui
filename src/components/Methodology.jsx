@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { PIN_PRIORITY, refreshPins } from '../lib/scrollOrder.js'
 import Reveal from './Reveal.jsx'
 import useScrollReveal from '../hooks/useScrollReveal.js'
 import { methodologySteps } from '../data/services.js'
@@ -35,6 +36,7 @@ export default function Methodology() {
           start: 'top top',
           end: () => `+=${Math.abs(getAmt())}`,
           pin: true,
+          refreshPriority: PIN_PRIORITY.methodology,
           scrub: 1.1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
@@ -46,7 +48,11 @@ export default function Methodology() {
       })
     })
 
-    return () => mm.revert()
+    refreshPins()
+    return () => {
+      mm.revert()
+      refreshPins()
+    }
   }, [])
 
   return (

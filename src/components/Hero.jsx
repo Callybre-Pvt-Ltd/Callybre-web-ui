@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAppReady } from '../context/AppReadyContext.jsx'
 
-const WORDS = ['RESULTS.', 'REVENUE.', 'RANKINGS.', 'RETENTION.']
+// Each word must complete the sentence "We build things that ___."
+const WORDS = ['CONVERT.', 'SCALE.', 'RANK.', 'PERFORM.']
 
 export default function Hero() {
   const sectionRef = useRef(null)

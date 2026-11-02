@@ -7,13 +7,7 @@
 // complete. Replace it with your real information before going live.
 // ============================================================
 
-// PLACEHOLDER contact details
-export const CONTACT = {
-  email: 'hello@callybre.com',
-  phone: '+91 00000 00000',
-  location: 'Delhi, India',
-  hours: 'Mon - Sat, 10:00 AM - 7:00 PM IST',
-}
+// Contact details (phone, location, email) live in ./contact.js
 
 export const NAV_LINKS = [
   { href: '#home', label: 'Home' },
@@ -25,7 +19,7 @@ export const NAV_LINKS = [
 
 // PLACEHOLDER numbers - replace with real ones
 export const STATS = [
-  { value: 50, suffix: '+', label: 'Projects Delivered' },
+  { value: 15, suffix: '+', label: 'Projects Delivered' },
   { value: 30, suffix: '+', label: 'Happy Clients' },
   { value: 5, suffix: '+', label: 'Years Experience' },
   { value: 98, suffix: '%', label: 'Client Retention' },
@@ -213,14 +207,4 @@ export const FOOTER_COLUMNS = [
     title: 'Digital Marketing',
     links: ['Video Shoot', 'SEO, AEO, GEO', 'Social Media', 'Brand Strategy'],
   },
-]
-
-export const SERVICE_OPTIONS = [
-  'Web Development',
-  'Mobile App Dev',
-  'AI Automation',
-  'Cyber Security',
-  'Video Shoot',
-  'SEO, AEO, GEO',
-  'Something else',
 ]

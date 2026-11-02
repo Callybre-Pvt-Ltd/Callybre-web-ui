@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { PIN_PRIORITY, refreshPins } from '../lib/scrollOrder.js'
 import { itServices } from '../data/services.js'
 import { useAppReady } from '../context/AppReadyContext.jsx'
 import Icon from './Icon.jsx'
+import { SELECT_SERVICE_EVENT, SERVICE_OPTIONS } from '../data/contact.js'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -14,23 +16,35 @@ const ACCENT_ICON = {
   emerald:'icon-accent-emerald',
 }
 
+function selectService(title) {
+  window.dispatchEvent(new CustomEvent(SELECT_SERVICE_EVENT, { detail: title }))
+}
+
 function ServiceRow({ service }) {
   return (
-    <div className="service-item group transition-colors hover:bg-white/[0.04]">
-      <div className="w-full flex items-center gap-4 sm:gap-5 py-4.5 sm:py-5.5 px-5 sm:px-8 text-left">
-        <div className={`w-10 h-10 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center bg-white/[0.04] border border-white/[0.08] ${ACCENT_ICON[service.color] || 'text-white'} transition-transform duration-300 group-hover:scale-110`}>
-          <Icon name={service.icon} className="w-5 h-5" />
+    <a
+      href="#contact"
+      onClick={() => selectService(service.title)}
+      className="service-item group relative flex border-t border-white/[0.06] first-of-type:border-t-0 items-center gap-4 sm:gap-5 min-h-[88px] sm:min-h-[112px] px-5 sm:px-8 py-4 sm:py-5 text-left transition-colors hover:bg-white/[0.04] focus-visible:outline-none focus-visible:bg-white/[0.05]"
+    >
+      <div className={`w-11 h-11 shrink-0 flex items-center justify-center bg-white/[0.04] border border-white/[0.08] ${ACCENT_ICON[service.color] || 'text-white'} transition-transform duration-300 group-hover:scale-110`}>
+        <Icon name={service.icon} className="w-5 h-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-[15px] sm:text-[16px] font-bold leading-snug text-white group-hover:text-violet-300 transition-colors">
+          {service.title}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-[14.5px] sm:text-[16px] font-bold text-white group-hover:text-violet-300 transition-colors">
-            {service.title}
-          </div>
-          <div className="text-[12.5px] sm:text-[13px] text-zinc-400 mt-1 leading-relaxed">
-            {service.description}
-          </div>
+        <div className="text-[12.5px] sm:text-[13px] text-zinc-400 mt-1 leading-relaxed">
+          {service.description}
         </div>
       </div>
-    </div>
+      <span
+        aria-hidden="true"
+        className="shrink-0 text-zinc-600 transition-all duration-300 group-hover:text-violet-300 group-hover:translate-x-1"
+      >
+        →
+      </span>
+    </a>
   )
 }
 
@@ -90,6 +104,7 @@ export default function ServicesSection() {
           start: 'top top',
           end: () => `+=${window.innerHeight * 1.5}`,
           pin: true,
+          refreshPriority: PIN_PRIORITY.services,
           pinSpacing: true,
           scrub: 0.5,
           anticipatePin: 1,
@@ -179,6 +194,7 @@ export default function ServicesSection() {
           start: 'top top',
           end: () => `+=${window.innerHeight * 1.5}`,
           pin: true,
+          refreshPriority: PIN_PRIORITY.services,
           pinSpacing: true,
           scrub: 0.5,
           anticipatePin: 1,
@@ -242,20 +258,24 @@ export default function ServicesSection() {
       }
     })
 
-    return () => mm.revert()
+    refreshPins()
+    return () => {
+      mm.revert()
+      refreshPins()
+    }
   }, [])
 
   // Refresh ScrollTrigger when preloader completes & on mount
   useEffect(() => {
     const t = setTimeout(() => {
-      ScrollTrigger.refresh()
+      refreshPins()
     }, 150)
     return () => clearTimeout(t)
   }, [])
 
   useEffect(() => {
     if (ready) {
-      ScrollTrigger.refresh()
+      refreshPins()
     }
   }, [ready])
 
@@ -368,7 +388,7 @@ export default function ServicesSection() {
             </div>
 
             {/* The Services Card Container */}
-            <div className="relative bg-[#0d0d10]/95 border border-white/[0.1] backdrop-blur-md shadow-2xl divide-y divide-white/[0.06] overflow-hidden">
+            <div className="relative bg-[#0d0d10]/95 border border-white/[0.1] backdrop-blur-md shadow-2xl overflow-hidden">
               {/* Subtle background glow */}
               <div className="pointer-events-none absolute -top-24 -right-24 w-60 h-60 bg-violet-600/10 rounded-full blur-3xl" />
               <div className="pointer-events-none absolute -bottom-24 -left-24 w-60 h-60 bg-blue-600/10 rounded-full blur-3xl" />
@@ -378,16 +398,17 @@ export default function ServicesSection() {
                 <ServiceRow key={service.id} service={service} />
               ))}
 
-              {/* Bottom Card Footer — Balances vertical layout and eliminates empty void */}
-              <div className="px-5 sm:px-8 py-3.5 sm:py-4 bg-white/[0.02] flex items-center justify-between">
-                <span className="text-[11px] sm:text-[12px] text-zinc-400 font-medium">Enterprise & Custom Solutions</span>
-                <a
-                  href="#contact"
-                  className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-violet-400 hover:text-white transition-colors inline-flex items-center gap-1"
-                >
+              {/* Bottom Card Footer — whole bar is clickable */}
+              <a
+                href="#contact"
+                onClick={() => selectService(SERVICE_OPTIONS[SERVICE_OPTIONS.length - 1])}
+                className="group border-t border-white/[0.06] px-5 sm:px-8 py-4 bg-white/[0.02] hover:bg-white/[0.05] transition-colors flex items-center justify-between"
+              >
+                <span className="text-[12px] text-zinc-400 font-medium group-hover:text-zinc-200 transition-colors">Enterprise & Custom Solutions</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-violet-400 group-hover:text-white transition-colors inline-flex items-center gap-1">
                   Get Started →
-                </a>
-              </div>
+                </span>
+              </a>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { PIN_PRIORITY, refreshPins } from '../lib/scrollOrder.js'
 import { WHY_US } from '../data/site.js'
 import Icon from './Icon.jsx'
 import Reveal from './Reveal.jsx'
@@ -56,6 +57,7 @@ export default function WhyUs() {
           start: 'top top',
           end: () => `+=${Math.abs(getAmt())}`,
           pin: true,
+          refreshPriority: PIN_PRIORITY.why,
           scrub: 1.2,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
@@ -82,6 +84,7 @@ export default function WhyUs() {
           start: 'top top',
           end: () => `+=${Math.abs(getAmt())}`,
           pin: true,
+          refreshPriority: PIN_PRIORITY.why,
           scrub: 1.1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
@@ -92,17 +95,19 @@ export default function WhyUs() {
       })
     })
 
-    const onResize = () => ScrollTrigger.refresh()
+    refreshPins()
+    const onResize = () => refreshPins()
     window.addEventListener('resize', onResize)
     return () => {
       mm.revert()
       window.removeEventListener('resize', onResize)
+      refreshPins()
     }
   }, [])
 
   useEffect(() => {
     if (ready) {
-      ScrollTrigger.refresh()
+      refreshPins()
     }
   }, [ready])
 
