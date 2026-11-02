@@ -20,6 +20,10 @@ export const CONTACT_COPY = {
   submitLabel: 'Send Message',
   successTitle: 'Message received.',
   successText: 'Thanks for reaching out — we will get back to you shortly.',
+  // Shown only if the message couldn't reach our server after several retries
+  failedTitle: "That didn't go through.",
+  failedText:
+    "Our server isn't responding right now. Send it by email instead and it'll reach us straight away. Your details are already filled in.",
 }
 
 // Labels for the bottom info strip of the contact section

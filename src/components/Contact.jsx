@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   CONTACT,
   CONTACT_COPY,
@@ -9,10 +9,7 @@ import {
 import Reveal from './Reveal.jsx'
 import ServiceSelect from './ServiceSelect.jsx'
 import useScrollReveal from '../hooks/useScrollReveal.js'
-
-// Backend URL — set VITE_API_URL in .env / your hosting dashboard (e.g. https://callybre-backend.onrender.com)
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\/$/, '')
-const CONTACT_API_URL = `${API_URL}/api/contact`
+import { deliver, flushPending, newMessageId, warmUp } from '../lib/contactApi.js'
 
 const EMPTY_FORM ={ name: '', email: '', phone: '', service: '', message: '' }
 
@@ -46,13 +43,30 @@ function Field({ id, label, type = 'text', value, onChange, required, textarea, 
   )
 }
 
+function mailtoFor(msg) {
+  const subject = `Website enquiry from ${msg.name}`
+  const lines = [`Name: ${msg.name}`, `Email: ${msg.email}`]
+  if (msg.phone) lines.push(`Phone: ${msg.phone}`)
+  if (msg.service) lines.push(`Service: ${msg.service}`)
+  const body = [...lines, '', msg.message].join('\n')
+  return `mailto:${CONTACT.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+}
+
 function ContactForm() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
   const [sent, setSent] = useState(false)
-  const [sending, setSending] = useState(false)
-  const [submitError, setSubmitError] = useState('')
+  // 'sending' | 'delivered' | 'failed' — delivery runs in the background after the success screen shows
+  const [delivery, setDelivery] = useState(null)
+  const [lastMessage, setLastMessage] = useState(null)
   const [honeypot, setHoneypot] = useState('')
+  const currentIdRef = useRef(null)
+
+  // Wake the backend early (Render free tier sleeps) + resend anything left from a previous visit
+  useEffect(() => {
+    warmUp()
+    flushPending()
+  }, [])
 
   // Service rows elsewhere on the page can pre-select a service here
   useEffect(() => {
@@ -79,34 +93,55 @@ function ContactForm() {
     return er
   }
 
-  const onSubmit = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault()
-    if (sending) return
     const er = validate()
     setErrors(er)
-    setSubmitError('')
     if (Object.keys(er).length) return
 
-    setSending(true)
-    try {
-      const res = await fetch(CONTACT_API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, website: honeypot }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok || !data.ok) {
-        if (data.errors) setErrors(data.errors)
-        setSubmitError(data.error || (data.errors ? '' : 'Something went wrong. Please try again.'))
-        return
-      }
-      setSent(true)
-      setForm(EMPTY_FORM)
-    } catch {
-      setSubmitError('Network error. Please check your connection and try again.')
-    } finally {
-      setSending(false)
-    }
+    const msg = { ...form, website: honeypot, id: newMessageId() }
+    currentIdRef.current = msg.id
+
+    // Show success immediately; the actual send happens in the background
+    setLastMessage(msg)
+    setDelivery('sending')
+    setSent(true)
+    setForm(EMPTY_FORM)
+
+    deliver(msg).then(({ ok }) => {
+      if (currentIdRef.current === msg.id) setDelivery(ok ? 'delivered' : 'failed')
+    })
+  }
+
+  const reset = () => {
+    currentIdRef.current = null
+    setDelivery(null)
+    setSent(false)
+  }
+
+  if (sent && delivery === 'failed' && lastMessage) {
+    return (
+      <div className="flex flex-col items-start justify-center min-h-[360px]">
+        <div className="w-11 h-11 flex items-center justify-center border border-amber-400/30 bg-amber-400/10 text-amber-400 mb-6">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 8v5M12 16.5v.5" /><circle cx="12" cy="12" r="9" /></svg>
+        </div>
+        <h3 className="text-2xl font-black tracking-tight text-white">{CONTACT_COPY.failedTitle}</h3>
+        <p className="mt-3 text-[14px] text-zinc-400 leading-relaxed max-w-sm">{CONTACT_COPY.failedText}</p>
+        <a
+          href={mailtoFor(lastMessage)}
+          className="mt-8 inline-flex items-center border border-white/20 px-5 py-3 text-[11px] font-bold tracking-[0.2em] uppercase text-white hover:bg-white hover:text-black transition-colors"
+        >
+          Email it instead →
+        </a>
+        <button
+          type="button"
+          onClick={reset}
+          className="mt-5 text-[11px] font-bold tracking-[0.2em] uppercase text-zinc-500 hover:text-white transition-colors"
+        >
+          Back to form
+        </button>
+      </div>
+    )
   }
 
   if (sent) {
@@ -119,7 +154,7 @@ function ContactForm() {
         <p className="mt-3 text-[14px] text-zinc-400 leading-relaxed max-w-sm">{CONTACT_COPY.successText}</p>
         <button
           type="button"
-          onClick={() => setSent(false)}
+          onClick={reset}
           className="mt-8 text-[11px] font-bold tracking-[0.2em] uppercase text-zinc-400 hover:text-white transition-colors"
         >
           Send another →
@@ -129,7 +164,7 @@ function ContactForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-7">
+    <form onSubmit={onSubmit} onFocus={warmUp} noValidate className="space-y-7">
       <Field id="name" label="Your Name" value={form.name} onChange={update('name')} required error={errors.name} />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-7">
         <Field id="email" type="email" label="Your Email" value={form.email} onChange={update('email')} required error={errors.email} />
@@ -160,10 +195,9 @@ function ContactForm() {
       />
 
       <div className="pt-4">
-        <button type="submit" className="contact-glitch-btn disabled:opacity-60" disabled={sending}>
-          {sending ? 'Sending…' : CONTACT_COPY.submitLabel}
+        <button type="submit" className="contact-glitch-btn">
+          {CONTACT_COPY.submitLabel}
         </button>
-        {submitError && <p role="alert" className="mt-4 text-[12px] text-rose-400">{submitError}</p>}
       </div>
     </form>
   )
