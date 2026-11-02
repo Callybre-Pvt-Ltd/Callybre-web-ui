@@ -10,7 +10,11 @@ import Reveal from './Reveal.jsx'
 import ServiceSelect from './ServiceSelect.jsx'
 import useScrollReveal from '../hooks/useScrollReveal.js'
 
-const EMPTY_FORM = { name: '', email: '', phone: '', service: '', message: '' }
+// Backend URL — set VITE_API_URL in .env / your hosting dashboard (e.g. https://callybre-backend.onrender.com)
+const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:4000').replace(/\/$/, '')
+const CONTACT_API_URL = `${API_URL}/api/contact`
+
+const EMPTY_FORM ={ name: '', email: '', phone: '', service: '', message: '' }
 
 // Floating-label underline field (label sits in the field, lifts on focus / when filled)
 function Field({ id, label, type = 'text', value, onChange, required, textarea, error }) {
@@ -46,6 +50,9 @@ function ContactForm() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [errors, setErrors] = useState({})
   const [sent, setSent] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [honeypot, setHoneypot] = useState('')
 
   // Service rows elsewhere on the page can pre-select a service here
   useEffect(() => {
@@ -72,14 +79,34 @@ function ContactForm() {
     return er
   }
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
+    if (sending) return
     const er = validate()
     setErrors(er)
+    setSubmitError('')
     if (Object.keys(er).length) return
-    // Frontend only for now — no backend connected yet.
-    setSent(true)
-    setForm(EMPTY_FORM)
+
+    setSending(true)
+    try {
+      const res = await fetch(CONTACT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...form, website: honeypot }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data.ok) {
+        if (data.errors) setErrors(data.errors)
+        setSubmitError(data.error || (data.errors ? '' : 'Something went wrong. Please try again.'))
+        return
+      }
+      setSent(true)
+      setForm(EMPTY_FORM)
+    } catch {
+      setSubmitError('Network error. Please check your connection and try again.')
+    } finally {
+      setSending(false)
+    }
   }
 
   if (sent) {
@@ -120,10 +147,23 @@ function ContactForm() {
 
       <Field id="message" label="Share your thoughts" value={form.message} onChange={update('message')} required textarea error={errors.message} />
 
+      {/* Honeypot — hidden from humans, bots fill it in */}
+      <input
+        type="text"
+        name="website"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute -left-[9999px] w-px h-px opacity-0"
+      />
+
       <div className="pt-4">
-        <button type="submit" className="contact-glitch-btn">
-          {CONTACT_COPY.submitLabel}
+        <button type="submit" className="contact-glitch-btn disabled:opacity-60" disabled={sending}>
+          {sending ? 'Sending…' : CONTACT_COPY.submitLabel}
         </button>
+        {submitError && <p role="alert" className="mt-4 text-[12px] text-rose-400">{submitError}</p>}
       </div>
     </form>
   )

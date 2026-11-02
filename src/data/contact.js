@@ -8,7 +8,7 @@ export const CONTACT = {
   phone: '+91 91311 59342',
   phoneHref: 'tel:+919131159342',
   location: 'Bhopal, India',
-  email: 'hello@callybre.com',
+  email: 'business@callybre.com',
 }
 
 // Copy shown next to the contact form

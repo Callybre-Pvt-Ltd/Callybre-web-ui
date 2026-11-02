@@ -1,10 +1,6 @@
 // ============================================================
 // ALL website content lives here. Edit text/numbers in this file
 // and the sections update automatically.
-//
-// IMPORTANT: Everything marked PLACEHOLDER below (stats, projects,
-// testimonials, contact details) is sample content so the design looks
-// complete. Replace it with your real information before going live.
 // ============================================================
 
 // Contact details (phone, location, email) live in ./contact.js
@@ -17,7 +13,8 @@ export const NAV_LINKS = [
   { href: '#faq', label: 'FAQ' },
 ]
 
-// PLACEHOLDER numbers - replace with real ones
+// Stats strip numbers. The <Stats /> section is currently hidden in App.jsx;
+// put real numbers here and re-add it there to show it again.
 export const STATS = [
   { value: 15, suffix: '+', label: 'Projects Delivered' },
   { value: 30, suffix: '+', label: 'Happy Clients' },
@@ -72,73 +69,51 @@ export const PORTFOLIO_FILTERS = [
   { id: 'marketing', label: 'Marketing' },
 ]
 
-// PLACEHOLDER projects - replace with your real case studies
+// Real client projects shown in the "Selected Projects" carousel
 export const PROJECTS = [
   {
-    id: 'p1',
-    category: 'web',
-    color: 'purple',
-    icon: 'webdev',
-    tag: 'Web Platform',
-    title: 'Retail Commerce Portal',
-    text: 'A fast, SEO-friendly online store with payments, inventory sync and an admin dashboard.',
-    tech: ['React', 'Node.js', 'PostgreSQL'],
-    result: 'Sample result: 2x faster checkout',
-  },
-  {
-    id: 'p2',
+    id: 'kk-techtherm',
     category: 'mobile',
     color: 'blue',
     icon: 'mobile',
-    tag: 'Mobile App',
-    title: 'Fleet Tracking App',
-    text: 'Cross-platform app for live vehicle tracking, driver check-ins and trip reports.',
-    tech: ['React Native', 'AWS', 'MongoDB'],
-    result: 'Sample result: live updates every 5s',
+    tag: 'Web + Mobile App',
+    title: 'KK TechTherm',
+    text: "One app to run their construction sites. Admins, managers and site engineers handle attendance, salaries and salary slips, inventory, expenses, billing and POs, and add or manage sites from the same place.",
+    tech: ['Attendance & Payroll', 'Inventory', 'Billing & POs', 'Site Management'],
+    result: 'Construction site management',
   },
   {
-    id: 'p3',
-    category: 'ai',
-    color: 'indigo',
-    icon: 'ai',
-    tag: 'AI Automation',
-    title: 'Support Workflow Bot',
-    text: 'Automates ticket sorting, first replies and report generation for a support team.',
-    tech: ['Python', 'LLM APIs', 'n8n'],
-    result: 'Sample result: 60% fewer manual tasks',
-  },
-  {
-    id: 'p4',
-    category: 'marketing',
-    color: 'rose',
-    icon: 'video',
-    tag: 'Video Production',
-    title: 'Showroom Reel Campaign',
-    text: 'High-retention reels for vehicle deliveries and inaugurations, shot and edited end to end.',
-    tech: ['Reels', 'Shoot', 'Edit'],
-    result: 'Sample result: 3x more reach',
-  },
-  {
-    id: 'p5',
-    category: 'marketing',
-    color: 'amber',
-    icon: 'seo',
-    tag: 'SEO / AEO',
-    title: 'Local Search Growth',
-    text: 'Search and AI-answer optimization that moves a local business to the top of results.',
-    tech: ['SEO', 'AEO', 'Analytics'],
-    result: 'Sample result: top 3 ranking',
-  },
-  {
-    id: 'p6',
+    id: 'drivers-welfare',
     category: 'web',
     color: 'emerald',
-    icon: 'shield',
-    tag: 'Security',
-    title: 'Secure Client Dashboard',
-    text: 'Role-based dashboard with audit logs, encrypted data and hardened deployment.',
-    tech: ['Next.js', 'Auth', 'Kubernetes'],
-    result: 'Sample result: zero critical findings',
+    icon: 'webdev',
+    tag: 'Website',
+    title: 'All Drivers Welfare Association',
+    text: "A website for an association that works for drivers all over Madhya Pradesh, so drivers and their families can see what it does and get in touch.",
+    tech: ['Website', 'Non-profit', 'Madhya Pradesh'],
+    result: 'Working for drivers across MP',
+  },
+  {
+    id: 'eventok',
+    category: 'web',
+    color: 'purple',
+    icon: 'webdev',
+    tag: 'Web + Mobile App',
+    title: 'EventOK',
+    text: "An event marketplace. Vendors open their own store and list their services, customers book them online and pay an advance upfront. The admin and vendors each get their own panel to manage everything.",
+    tech: ['Vendor Stores', 'Online Booking', 'Advance Payments', 'Admin & Vendor Panels'],
+    result: 'Event booking marketplace',
+  },
+  {
+    id: 'health-shift',
+    category: 'marketing',
+    color: 'rose',
+    icon: 'social',
+    tag: 'Digital Marketing',
+    title: 'Health Shift',
+    text: "We handle Health Shift's digital marketing and run their social media handles, from planning what goes out to posting it and keeping the pages active.",
+    tech: ['Social Media', 'Content', 'Digital Marketing'],
+    result: 'Social media management',
   },
 ]
 
@@ -149,25 +124,25 @@ export const VALUES = [
   { icon: 'shield', title: 'Ownership', text: 'You own your code, your data and your accounts. Always.' },
 ]
 
-// PLACEHOLDER testimonials - replace with real client feedback (with permission)
+// Client testimonials. Note: quotes are rendered as HTML, so avoid "&", "<" and ">" in them.
 export const TESTIMONIALS = [
   {
     quote:
-      'Sample testimonial: The team understood our business quickly and delivered a site that actually brings in enquiries.',
-    name: 'Client Name',
-    role: 'Founder, Company',
+      "Running several sites meant chasing numbers from everyone. Now attendance, salaries, stock and bills are all in one app, and the team really understood how a site works.",
+    name: 'Vaibhav Prajapati',
+    role: 'KK TechTherm',
   },
   {
     quote:
-      'Sample testimonial: Clear communication, weekly demos and zero surprises on the final invoice.',
-    name: 'Client Name',
-    role: 'Operations Head, Company',
+      "Our association finally has a proper website. Drivers can see what we do and reach us easily. The team was patient with every change we asked for.",
+    name: 'Subhash Wakoday',
+    role: 'Member, All Drivers Welfare Association',
   },
   {
     quote:
-      'Sample testimonial: The automation they built saves our team hours every single week.',
-    name: 'Client Name',
-    role: 'Director, Company',
+      "They built all of EventOK for us: vendor stores, bookings, advance payments and both panels. Whenever we needed something changed, they sorted it quickly.",
+    name: 'Ankit',
+    role: 'EventOK',
   },
 ]
 

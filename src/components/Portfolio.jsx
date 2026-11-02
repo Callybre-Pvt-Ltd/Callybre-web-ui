@@ -38,6 +38,11 @@ function CardIcon({ name, color }) {
       <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><path d="M8 11h6M11 8v6"/>
     </svg>
   )
+  if (name === "social") return (
+    <svg viewBox="0 0 24 24" style={s}>
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+    </svg>
+  )
   if (name === "shield") return (
     <svg viewBox="0 0 24 24" style={s}>
       <path d="M12 2l8 4v6c0 5-4 8-8 10C8 20 4 17 4 12V6l8-4z"/><path d="M9 12l2 2 4-4"/>

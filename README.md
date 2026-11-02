@@ -40,7 +40,7 @@ src/
     Testimonials.jsx
     FAQ.jsx                # accordion
     CTABanner.jsx
-    Contact.jsx            # validated form (opens email app via mailto)
+    Contact.jsx            # validated form, POSTs to callybre-backend (VITE_API_URL) -> Slack
     Footer.jsx
     Reveal.jsx / SectionHeading.jsx   # small reusable helpers
     TimelineStep.jsx        # single timeline step (used by Methodology)

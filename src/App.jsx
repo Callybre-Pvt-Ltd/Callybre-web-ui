@@ -1,7 +1,6 @@
 import Preloader from './components/Preloader.jsx'
 import Navbar from './components/Navbar.jsx'
 import Hero from './components/Hero.jsx'
-import Stats from './components/Stats.jsx'
 import ServicesSection from './components/ServicesSection.jsx'
 import WhyUs from './components/WhyUs.jsx'
 import Methodology from './components/Methodology.jsx'
@@ -35,7 +34,6 @@ export default function App() {
         <Navbar />
         <main>
           <Hero />
-          <Stats />
           <ServicesSection />
           <WhyUs />
           <Methodology />
